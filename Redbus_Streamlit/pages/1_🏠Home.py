@@ -1,3 +1,6 @@
+#Page 1
+
+#Importing Necessary modules: streamlit for building app , sqlalchemy for connect to db and populate the table with query results
 import streamlit as st
 from sqlalchemy import create_engine, MetaData, Table, select
 
@@ -22,5 +25,5 @@ query = select([table.c.route_name.distinct(), table.c.route_link])
 # Execute the query and fetch all distinct values
 results = connection.execute(query).fetchall()
 
-# Display the distinct values in a Streamlit table
+# Display the distinct values in a Streamlit table/dataframe
 st.dataframe(results)
