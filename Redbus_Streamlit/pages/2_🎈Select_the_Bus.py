@@ -1,3 +1,5 @@
+#Page 2
+#import necessary modules
 import streamlit as st
 import datetime
 from sqlalchemy import create_engine, MetaData, Table, select,func, Column, or_, and_
@@ -11,18 +13,20 @@ connection = engine.connect()
 metadata = MetaData()
 table = Table('bus_routes', metadata, autoload=True, autoload_with=engine)
 
-# Query to fetch data for the select box options
+# Query to fetch data for the select box option for routes
 query_1 = select([table.c.route_name.distinct()])
 options_route=connection.execute(query_1).fetchall()
-# Extract distinct valuesin tuple into a list
+# Extract distinct values in tuple into a list
 select_options_route = [value[0] for value in options_route]
-#select_options_route = pd.read_sql("SELECT DISTINCT route_name FROM bus_routes", con=db_connection)
+
 #Select options for starting time
 select_options_start_time = [str(datetime.time(hour=h).strftime('%H:%M') )+'-'+str(datetime.time(hour=(h+1)).strftime('%H:%M') ) 
            for h  in range(0, 23)]
 select_options_start_time.append('23:00-00:00')
+
 #Select options for Ratings
 select_options_Ratings = [str(r-1)+' to '+str(r) for r in range(5,0,-1)]
+
 #Select options for Fare range
 select_options_Fare_Range = [str(fare)+' to '+str(fare+100) for fare in range(0,1000,100)]
 select_options_Fare_Range.append('Others')
@@ -38,7 +42,8 @@ with st.container():
         option4=col1.selectbox('Select the Ratings',select_options_Ratings).split()
         option5=col2.selectbox('Select the Starting Time',select_options_start_time).split(':')
         option6=col3.selectbox('Bus Fare Range',select_options_Fare_Range).split(' ')
-
+           
+#where clause query conditions
 if option2 == 'Seater':
         query_condition_Seater = or_(Column('bustype').like('%Seater%' ),
                                      Column('bustype').like('%SEATER%'))
@@ -74,7 +79,8 @@ if option6[0] != 'Others':
         query_condition_fare = Column('price').between(option6_where1,option6_where2)
 else:
         query_condition_fare = Column('price') > 1000
-
+           
+#Query to extract the data based on the selected conditions
 
 query=select([func.substr(table.c.route_name, 1, func.instr(table.c.route_name, ' ' ) - 1).label('Starting_names'), 
 func.substr(table.c.route_name, func.instr(table.c.route_name, ' ') + 4).label('Reaching_names'),
@@ -83,6 +89,7 @@ func.substr(table.c.route_name, func.instr(table.c.route_name, ' ') + 4).label('
 (table.c.bustype).label('Bus_type')]).where(table.c.route_name == option1).where(
 table.c.star_rating.between(option4_where1,option4_where2)).where(
         query_condition_fare).where(query_condition_AC).where(query_condition_Seater)
+
 # Execute the query and fetch all distinct values
 results = connection.execute(query).fetchall()
 
