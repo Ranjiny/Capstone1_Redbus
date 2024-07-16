@@ -6,7 +6,8 @@ from sqlalchemy import create_engine, MetaData, Table, select,func, Column, or_,
 
 
 # Create a connection to the MySQL database
-engine = create_engine('mysql+pymysql://root:12345678@localhost/Capstone')
+# eg :engine = create_engine('mysql+pymysql://root:12345678@localhost/Capstone')
+engine = create_engine('mysql+pymysql://<username>:<password>@<host>/<dbname>') 
 connection = engine.connect()
 
 # Define the table and metadata
