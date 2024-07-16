@@ -12,7 +12,8 @@ st.write("""
          *To check the availability of buses use '🎈Select_the_Bus' page* """)
 
 # Create a connection to the MySQL database
-engine = create_engine('mysql+pymysql://root:12345678@localhost/Capstone')
+# eg :engine = create_engine('mysql+pymysql://root:12345678@localhost/Capstone')
+engine = create_engine('mysql+pymysql://<username>:<password>@<host>/<dbname>') 
 connection = engine.connect()
 
 # Define the table and metadata
