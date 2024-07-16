@@ -83,8 +83,8 @@ else:
            
 #Query to extract the data based on the selected conditions
 
-query=select([func.substr(table.c.route_name, 1, func.instr(table.c.route_name, ' ' ) - 1).label('Starting_names'), 
-func.substr(table.c.route_name, func.instr(table.c.route_name, ' ') + 4).label('Reaching_names'),
+query=select([func.substr(table.c.route_name, 1, func.instr(table.c.route_name, 'to' ) - 1).label('Starting_names'), 
+func.substr(table.c.route_name, func.instr(table.c.route_name, 'to') + 3).label('Reaching_names'),
 (table.c.busname).label('Names'),(table.c.price).label('Bus_fare'),
 (table.c.star_rating).label('Ratings'),(table.c.seats_available).label('Seats'),
 (table.c.bustype).label('Bus_type')]).where(table.c.route_name == option1).where(
