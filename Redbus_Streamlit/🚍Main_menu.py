@@ -1,4 +1,7 @@
-import streamlit as st
+#importing streamlit module
+import streamlit as st 
+
+#Introductory page
 
 st.write("""
          # Hello 	:wave: , 
