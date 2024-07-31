@@ -21,9 +21,9 @@ options_route=connection.execute(query_1).fetchall()
 select_options_route = [value[0] for value in options_route]
 
 #Select options for starting time
-select_options_start_time = [str(datetime.time(hour=h).strftime('%H:%M') )+'-'+str(datetime.time(hour=(h+1)).strftime('%H:%M') ) 
+select_options_start_time = [str(datetime.time(hour=h).strftime('%H:%M:%S') )+' - '+str(datetime.time(hour=(h+1)).strftime('%H:%M:%S') ) 
            for h  in range(0, 23)]
-select_options_start_time.append('23:00-00:00')
+select_options_start_time.append('23:00:00 - 00:00:00')
 
 #Select options for Ratings
 select_options_Ratings = [str(r-1)+' to '+str(r) for r in range(5,0,-1)]
@@ -41,7 +41,7 @@ with st.container():
         option3=col3.selectbox('Select the AC Type',('AC','NON AC'))
         col4, col5,col6 = st.columns(3)
         option4=col1.selectbox('Select the Ratings',select_options_Ratings).split()
-        option5=col2.selectbox('Select the Starting Time',select_options_start_time).split(':')
+        option5=col2.selectbox('Select the Starting Time',select_options_start_time)
         option6=col3.selectbox('Bus Fare Range',select_options_Fare_Range).split(' ')
            
 #where clause query conditions
@@ -73,6 +73,7 @@ else:
 option4_where1=int(option4[0])
 option4_where2=int(option4[-1])
 
+option5_where1,option5_where2=option5.split('-')
 
 if option6[0] != 'Others':
         option6_where1=int(option6[0])
@@ -83,19 +84,32 @@ else:
            
 #Query to extract the data based on the selected conditions
 
-query=select([func.substr(table.c.route_name, 1, func.instr(table.c.route_name, 'to' ) - 1).label('Starting_names'), 
-func.substr(table.c.route_name, func.instr(table.c.route_name, 'to') + 3).label('Reaching_names'),
-(table.c.busname).label('Names'),(table.c.price).label('Bus_fare'),
+query=select([func.substr(table.c.route_name, 1, func.instr(table.c.route_name, 'to' ) - 1).label('Starting names'), 
+func.substr(table.c.route_name, func.instr(table.c.route_name, 'to') + 3).label('Reaching names'),
+(table.c.busname).label('Names'),(table.c.price).label('Bus fare'),(table.c.departing_time).label('Departing time'),(table.c.duration).label('Duration'),
+(table.c.reaching_time).label('Reaching time'),
 (table.c.star_rating).label('Ratings'),(table.c.seats_available).label('Seats'),
-(table.c.bustype).label('Bus_type')]).where(table.c.route_name == option1).where(
+(table.c.bustype).label('Bus type'),(table.c.route_link).label('Link')]).where(table.c.route_name == option1).where(
 table.c.star_rating.between(option4_where1,option4_where2)).where(
-        query_condition_fare).where(query_condition_AC).where(query_condition_Seater)
+        query_condition_fare).where(query_condition_AC).where(query_condition_Seater).where(
+                table.c.departing_time.between(option5_where1,option5_where2))
 
 # Execute the query and fetch all distinct values
 results = connection.execute(query).fetchall()
 
-# Display the distinct values in a Streamlit table
-st.dataframe(results)
+if bool(option1)==False:
+        st.write('Please make a selection')
+else:
+        if bool(results)== True:
+        # Display the distinct values in a Streamlit table
+                st.dataframe(results)
+        else:
+        #Display message for no results
+                st.write("""
+                        No buses available for this route
+
+                
+                        Consider refining your search""")
 
 
 
